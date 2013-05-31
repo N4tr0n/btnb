@@ -1,0 +1,280 @@
+\documentclass[letterpaper]{article}
+% Change "article" to "report" to get rid of page number on title page
+\usepackage{fullpage}
+\usepackage{amsmath,amsfonts,amsthm,amssymb}
+\usepackage{setspace}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{extramarks}
+\usepackage{chngpage}
+\usepackage{soul}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{graphicx,float,wrapfig}
+\usepackage{ifthen}
+\usepackage{listings}
+\usepackage{courier}
+
+\definecolor{MyDarkGreen}{rgb}{0.0,0.4,0.0}
+
+% For faster processing, load Matlab syntax for listings
+\lstloadlanguages{Matlab}%
+\lstset{language=Matlab,
+  frame=single,
+  basicstyle=\small\ttfamily,
+  keywordstyle=[1]\color{Blue}\bf,
+  keywordstyle=[2]\color{Purple},
+  keywordstyle=[3]\color{Blue}\underbar,
+  identifierstyle=,
+  commentstyle=\usefont{T1}{pcr}{m}{sl}\color{MyDarkGreen}\small,
+  stringstyle=\color{Purple},
+  showstringspaces=false,
+  tabsize=5,
+  % Put standard MATLAB functions not included in the default
+  % language here
+  morekeywords={xlim,ylim,var,alpha,factorial,poissrnd,normpdf,normcdf},
+  % Put MATLAB function parameters here
+  morekeywords=[2]{on, off, interp},
+  % Put user defined functions here
+  morekeywords=[3]{FindESS},
+  morecomment=[l][\color{Blue}]{...},
+  numbers=left,
+  firstnumber=1,
+  numberstyle=\tiny\color{Blue},
+  stepnumber=5
+}
+
+% Includes a figure
+% The first parameter is the label, which is also the name of the figure
+% with or without the extension (e.g., .eps, .fig, .png, .gif, etc.)
+% IF NO EXTENSION IS GIVEN, LaTeX will look for the most appropriate one.
+% This means that if a DVI (or PS) is being produced, it will look for
+% an eps. If a PDF is being produced, it will look for nearly anything
+% else (gif, jpg, png, et cetera). Because of this, when I generate figures
+% I typically generate an eps and a png to allow me the most flexibility
+% when rendering my document.
+% The second parameter is the width of the figure normalized to column width
+% (e.g. 0.5 for half a column, 0.75 for 75% of the column)
+% The third parameter is the caption.
+\newcommand{\scalefig}[3]{
+  \begin{figure}[ht!]
+    % Requires \usepackage{graphicx}
+    \centering
+    \includegraphics[width=#2\columnwidth]{#1}
+    %%% I think \captionwidth (see above) can go away as long as
+    %%% \centering is above
+    % \captionwidth{#2\columnwidth}%
+    \caption{#3}
+    \label{#1}
+  \end{figure}}
+
+% Includes a MATLAB script
+% The first parameter is the label, which also is the name of the script
+% without the .m.
+% The second parameter is the optional caption.
+\newcommand{\matlabscript}[2]
+{\begin{itemize}\item[]\lstinputlisting[caption=#2,label=#1]{#1.m}\end{itemize}}
+\makeatletter
+% \newcommand{\rmnum}[1]{\romannumeral #1}
+% \newcommand{\Rmnum}[1]{\expandafter\@slowromancap\romannumeral #1@}
+\makeatother
+
+% Personal commands
+\newcommand{\iip}[2]{\ensuremath{\left[#1,#2\right]}}
+\newcommand{\DeltaT}{\ensuremath{\tilde{\Delta}}}
+\newcommand{\ThetaT}{\ensuremath{\tilde{\Theta}}}
+\newcommand{\parens}[1]{\ensuremath{\left(#1\right)}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+% Make title
+\title{Bogolubov Transformations and Null Bases}
+\date{\today}
+\author{\textbf{Nathan Hitchings}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\begin{document}
+\maketitle
+\section{Introduction}
+\section{Bogolubov Transformations}
+Let $\mathfrak{V}$ be a complex vector space of possibly infinite
+dimension. Suppose that on $\mathfrak{V}$ we have an inner product
+$\iip{\cdot}{\cdot}:\mathfrak{V}\times\mathfrak{V}\to\mathbb{C}$ that
+satisfies
+\begin{equation}
+  [f,g]=[g,f]^*
+\end{equation}
+and
+\begin{equation}
+  [f^*,g^*]=-[f,g]^*
+\end{equation}
+for any $f,g\in\mathfrak{V}$, where $*$ denotes complex
+conjugation. Assume that 
+$\{u_k,u_k^*\}\subset\mathfrak{V}$ and
+$\{v_l,v_l^*\}\subset\mathfrak{V}$ are complete and
+orthonormal. Further, assume that
+$\{\Theta_m,\Delta_m\}\subset\mathfrak{V}$
+and
+$\{\tilde{\Theta}_n,\tilde{\Delta}_n\}\subset\mathfrak{V}$
+are complete and null, i.e. that the following hold:
+
+\begin{subequations}\label{Prop:grp}
+\begin{gather}
+  \iip{\Theta_m}{\Theta_{m^{\prime}}}=\iip{\Delta_m}{\Delta_{m^{\prime}}}=0\\
+  \iip{\Theta_m}{\Delta_{m^\prime}}=-i\delta_{mm^\prime}\\
+  \iip{\ThetaT_n}{\ThetaT_{n^{\prime}}}=\iip{\DeltaT_n}{\DeltaT_{n^{\prime}}}=0\\
+  \iip{\ThetaT_n}{\DeltaT_{n^\prime}}=-i\delta_{nn^\prime}
+\end{gather}
+\end{subequations}
+
+Since $\{\Theta_m,\Delta_m\}$ and
+$\{\tilde{\Theta}_n,\tilde{\Delta}_n\}$ are
+complete subsets of $\mathfrak{V}$ we can write any
+$f\in\mathfrak{V}$ as a linear combination of the elements of these
+sets. That is, for all $f\in\mathfrak{V}$ we have 
+\begin{equation}
+  f=\sum_m(a_m\Theta_m+b_m\Delta_m)=\sum_n(c_n\tilde{\Theta}_n+d_n\tilde{\Delta}_n)
+\end{equation}
+ where $a_m,b_m,c_n,d_n\in\mathbb{C}$. Using \eqref{Prop:grp} we find
+ that
+ \begin{align}
+   a_m&=i[\Delta_m,f]&b_m&=i[\Theta_m,f]\\
+   c_n&=i[\DeltaT_n,f]&d_n&=i[\ThetaT_n,f]
+ \end{align}
+ \subsection{Bogolubov Transformations between Null Bases}
+It is well known that the Bogolubov transformations between
+$\{u_k,u_k^*\}$ and $\{v_l,v_l^*\}$ are 
+\begin{align}
+  v&=\alpha u+\beta u^*\\
+  u&=\alpha^{\dagger}v-\beta^Tv^*
+\end{align}
+where $\alpha$ and $\beta$ are matrices with entries
+$\alpha_{lk}=[u_k,v_l]$ and
+$\beta_{lk}=-[u_k^*,v_l]$ that are called Bogolubov
+coefficients. We want to find the Bogolubov transformations between
+$\{\Theta_m,\Delta_m\}$ and
+$\{\tilde{\Theta}_n,\tilde{\Delta}_n\}$. We know
+that they can be found because both sets are complete and so they can
+be expanded in terms of each other. We have 
+\begin{align}
+  \ThetaT_n&=\sum_m(\gamma_{nm}\Theta_m+\rho_{nm}\Delta_m)\\
+  \DeltaT_n&=\sum_m(\xi_{nm}\Theta_m+\eta_{nm}\Delta_m)
+\end{align}
+Using \eqref{Prop:grp} again we find that 
+\begin{align}
+  \gamma_{nm}&=i[\Delta_m,\ThetaT_n]&\rho_{nm}&=i[\Theta_m,\ThetaT_n]\\
+  \xi_{nm}&=i[\Delta_m,\DeltaT_n]&\eta_{nm}&=i[\Theta_m,\DeltaT_n]
+\end{align}
+Finally, using matrix notation we have that 
+\begin{align}
+  \ThetaT&=\gamma\Theta+\rho\Delta\\
+  \DeltaT&=\xi\Theta+\eta\Delta
+\end{align}
+
+Now, we need to find expressions for $\Theta$ and $\Delta$ in terms of $\ThetaT$ and
+$\DeltaT$. To do this, we write
+\begin{align}
+\Theta_m&=\sum_n\left(e_{mn}\ThetaT_n+f_{mn}\DeltaT_n\right)\\
+\Delta_m&=\sum_n\left(g_{mn}\ThetaT_n+h_{mn}\DeltaT_n\right)
+\end{align}
+Let's compute $e_{mn}$:
+\begin{align}
+\iip{\DeltaT_{n^\prime}}{\Theta_m}&=\iip{\DeltaT_{n^\prime}}{\sum_n\left(e_{mn}\ThetaT_n+f_{mn}\DeltaT_n\right)}\\
+&=\iip{\DeltaT_{n^\prime}}{\sum_n e_{mn}\ThetaT_n}\\
+&=e_{mn^\prime}\iip{\DeltaT_{n^\prime}}{\ThetaT_{n^\prime}}\\
+&=-ie_{mn^\prime}
+\end{align}
+Thus,
+\begin{equation}
+e_{mn}=i\iip{\DeltaT_{n}}{\Theta_m}.
+\end{equation}
+If you look back to (12) you will notice that $e_{mn}=-\eta_{nm}^*$. If we were to
+compute the rest of the coefficients we would see similar results. Hence, the
+expressions we were looking for are, in matrix notation,
+\begin{align}
+\Theta&=-\eta^\dagger\ThetaT-\rho^\dagger\DeltaT\\
+\Delta&=-\xi^\dagger\ThetaT-\gamma^\dagger\DeltaT
+\end{align}
+where $\dagger$ denotes conjugate transpose.
+
+We can now, finally, compute the Bogolubov identities for two null, complete sets.
+First, inserting (22) and (23) into (13) and (14) yields
+\begin{align}
+\ThetaT &= \gamma\parens{-\eta^\dag\ThetaT-\rho^\dag\DeltaT}+\rho\parens{-\xi^\dag-\gamma^\dag\DeltaT}\\
+&=\parens{-\gamma\eta^\dag-\rho\xi^\dag}\ThetaT+\parens{-\gamma\rho^\dag-\rho\gamma^\dag}\DeltaT
+\end{align}
+and
+\begin{align}
+\DeltaT&=\xi\parens{-\eta^\dag\ThetaT-\rho^\dag\DeltaT}+\eta\parens{-\xi^\dag-\gamma^\dag\DeltaT}\\
+&=\parens{-\xi\eta^\dag-\eta\xi^\dag}\ThetaT+\parens{-\xi\delta^\dag-\eta\gamma^\dag}\DeltaT
+\end{align}
+This clearly implies that
+\begin{align}
+\gamma\eta^\dag+\rho\xi^\dag&=-\mathrm{I}\\
+\gamma\rho^\dag+\rho\gamma^\dag&=0
+\end{align}
+and
+\begin{align}
+\xi\eta^\dag+\eta\xi^\dagger&=0\\
+\xi\rho^\dag+\eta\gamma^\dag&=-\mathrm{I}
+\end{align}
+Conversely, inserting (13) and (14) into (22) and (23) gives us
+\begin{align}
+\Theta&=\parens{-\eta^\dag\gamma-\rho^\dag\xi}\Theta+\parens{-\eta^\dag\rho-\rho^\dag\eta}\Delta\\
+\Delta&=\parens{-\xi^\dag\gamma-\gamma^\dag\xi}\Theta+\parens{-\xi^\dag\rho-\gamma^\dag\eta}\Delta
+\end{align}
+Therefore,
+\begin{align}
+\eta^\dag\gamma+\rho^\dag\xi&=-\mathrm{I}\\
+\eta^\dag\rho+\rho^\dag\eta&=0\\
+\xi^\dag\gamma+\gamma^\dag\xi&=0\\
+\xi^\dag\rho+\gamma^\dag\eta&=-\mathrm{I}
+\end{align}
+The equations (28)-(31) and (34)-(37) are the Bogolubov identities for two null,
+complete sets.
+\subsection{Bogolubov Transformations between Null and Orthonormal Bases}
+The last thing we need to do is to find the Bogolubov transformations between a
+complete, orthonormal set and a complete, null set. To this end, let $\{u_k,u_k^*\}$ be
+complete and orthonormal and let $\{\Theta_n,\Delta_n\}$ be complete
+and null. Let us also assume that $\Theta_n,\Delta_n\in\mathbb{R}$ for
+all $n$. Then, $\Theta_n=\Theta_n^*$ and the same cam be said of
+$\Delta_n$ for each $n$. Now, expanding each $\Theta_n$ and each
+$\Delta_n$ in terms of $u_k$ and $u_k^*$ we get
+\begin{align}
+\Theta_n&=\sum\parens{\lambda_{nk}u_k+\lambda_{nk}^*u_k^*}\\
+\Delta_n&=\sum\parens{\zeta_{nk}u_k+\zeta_{nk}^*u_k^*}
+\end{align}
+Using the inner product to isolate the coefficients $\lambda_{nk}$ and $\zeta_{nk}$ we
+find that
+\begin{align}
+\lambda_{nk}&=\iip{u_k}{\Theta_n}\\
+\zeta_{nk}&=\iip{u_k}{\Delta_n}
+\end{align}
+In matrix notation, (38) and (39) are
+\begin{align}
+\Theta&=\lambda u+\lambda^* u^*\\
+\Delta&=\zeta u+\zeta^* u^*
+\end{align}
+Now, expanding $u_k$ in terms of $\Theta_n$ and $\Delta_n$ yields
+\begin{equation}
+u_k=\sum\parens{a_{kn}\Theta_n + b_{kn}\Delta_n}
+\end{equation}
+Again, using the inner product to isolate the coefficients we find
+\begin{align}
+a_{kn}&=i\iip{\Delta_n}{u_k}=i\zeta_{nk}^*\\
+b_{kn}&=i\iip{\Theta_n}{u_k}=i\lambda_{nk}^*
+\end{align}
+Thus,
+\begin{equation}
+u=i\zeta^\dag\Theta+i\lambda^\dag\Delta
+\end{equation}
+Computing the Bogolubov identities in the same way as before we find that
+\begin{align}
+\lambda\zeta^\dag-\lambda^*\zeta^T&=-i\mathrm{I}\\
+\lambda\lambda^\dag-\lambda^*\lambda^T&=0\\
+\zeta\zeta^\dag-\zeta^*\zeta^T&=0\\
+\zeta\lambda^\dag-\zeta^*\lambda^T&=-i\mathrm{I}\\
+\zeta^\dag\lambda+\lambda^\dag\zeta&=-i\mathrm{I}\\
+\zeta^\dag\lambda^*+\lambda^\dag\zeta^*&=0
+\end{align}
+\end{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
